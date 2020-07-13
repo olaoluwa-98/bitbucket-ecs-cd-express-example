@@ -1,0 +1,37 @@
+definitions:
+  services:
+    push-image: &push-image
+      name: Build and Push Docker Image
+      image: atlassian/pipelines-awscli
+      caches:
+        - docker
+      services:
+        - docker
+      script:
+        - export BUILD_ID=$BITBUCKET_BRANCH_$BITBUCKET_COMMIT_$BITBUCKET_BUILD_NUMBER
+        - export DOCKER_URI=$DOCKER_IMAGE_URL:latest
+        # Login to docker registry on AWS
+        - eval $(aws ecr get-login --no-include-email)
+        # Build image
+        - docker build -t $DOCKER_URI .
+        # Push image to private registry
+        - docker push $DOCKER_URI
+
+    deploy-to-ecs: &deploy-to-ecs
+      name: Deploy to ECS
+      image: atlassian/pipelines-awscli
+      script:
+        - pipe: atlassian/aws-ecs-deploy:1.1.0
+          variables:
+            AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+            AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+            AWS_DEFAULT_REGION: 'us-east-1'
+            CLUSTER_NAME: 'my-express-app'
+            SERVICE_NAME: 'MyExpressAppService'
+            TASK_DEFINITION: "task-definition.json"
+
+pipelines:
+  branches:
+    master:
+      - step: *push-image
+      - step: *deploy-to-ecs

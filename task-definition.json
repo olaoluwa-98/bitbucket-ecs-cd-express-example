@@ -1,0 +1,44 @@
+{
+  "containerDefinitions": [
+    {
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/my-express-app",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "portMappings": [
+        {
+          "hostPort": 0,
+          "protocol": "tcp",
+          "containerPort": 3000
+        }
+      ],
+      "cpu": 0,
+      "image": "194812003448.dkr.ecr.us-east-1.amazonaws.com/my-express-app:latest",
+      "essential": true,
+      "name": "my-express-app"
+    }
+  ],
+  "memory": "256",
+  "compatibilities": ["EC2"],
+  "taskDefinitionArn": "arn:aws:ecs:us-east-1:194812003448:task-definition/my-express-app:2",
+  "family": "my-express-app",
+  "requiresAttributes": [
+    {
+      "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.ecr-auth"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+    }
+  ],
+  "requiresCompatibilities": ["EC2"],
+  "cpu": "256",
+  "revision": 2,
+  "status": "ACTIVE"
+}
